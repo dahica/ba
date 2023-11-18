@@ -1,0 +1,121 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+df = pd.read_csv('emails.csv')
+df.head()
+
+df.isnull().sum()
+
+df.dropna(how='any',inplace=True)
+x = df.iloc[:,1:-1].values
+y = df.iloc[:,-1].values
+from sklearn.model_selection import train_test_split
+x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.25,random_state=10)
+import matplotlib.pyplot as plt
+from sklearn.metrics import precision_recall_curve
+def plot_precision_recall_curve_custom(classifier, x_test, y_test):
+    y_scores = classifier.predict_proba(x_test)[:, 1]
+    precision, recall, _ = precision_recall_curve(y_test, y_scores)
+    plt.figure()
+    plt.step(recall, precision, color='b', alpha=0.2, where='post')
+    plt.fill_between(recall, precision, alpha=0.2, color='b')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve')
+    plt.show()
+
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    roc_curve,
+    auc,
+    precision_recall_curve,
+)
+kNN = KNeighborsClassifier(n_neighbors=10)
+kNN.fit(x_train, y_train)
+y_pred = kNN.predict(x_test)
+classification_rep = classification_report(y_test, y_pred)
+confusion = confusion_matrix(y_test, y_pred)
+recall = confusion[1, 1] / (confusion[1, 0] + confusion[1, 1])
+fpr = confusion[0, 1] / (confusion[0, 0] + confusion[0, 1])
+print("Classification Report:")
+print(classification_rep)
+print(f"Recall: {recall:.4f}")
+print(f"False Positive Rate: {fpr:.4f}")
+precision, recall, _ = precision_recall_curve(y_test, kNN.predict_proba(x_test)[:, 1])
+fpr, tpr, _ = roc_curve(y_test, kNN.predict_proba(x_test)[:, 1])
+roc_auc = auc(fpr, tpr)
+plt.figure(figsize=(8, 6))
+plt.plot(recall, precision, color='darkorange', lw=2, label='Precision-Recall Curve')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision vs Recall Curve')
+plt.legend(loc='best')
+plt.figure(figsize=(8, 6))
+sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues", cbar=False)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix Heatmap")
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='best')
+plt.show()
+
+
+
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.svm import SVC
+from sklearn.metrics import (
+    classification_report,
+    confusion_matrix,
+    roc_curve,
+    auc,
+    precision_recall_curve,)
+svm = SVC(gamma='auto', random_state=10)
+svm.fit(x_train, y_train)
+y_pred = svm.predict(x_test)
+classification_rep = classification_report(y_test, y_pred)
+confusion = confusion_matrix(y_test, y_pred)
+recall = confusion[1, 1] / (confusion[1, 0] + confusion[1, 1])
+fpr = confusion[0, 1] / (confusion[0, 0] + confusion[0, 1])
+print("Classification Report:")
+print(classification_rep)
+print(f"Recall: {recall:.4f}")
+print(f"False Positive Rate: {fpr:.4f}")
+precision, recall, _ = precision_recall_curve(y_test, svm.decision_function(x_test))
+fpr, tpr, _ = roc_curve(y_test, svm.decision_function(x_test))
+roc_auc = auc(fpr, tpr)
+plt.figure(figsize=(8, 6))
+plt.plot(recall, precision, color='darkorange', lw=2, label='Precision-Recall Curve')
+plt.xlabel('Recall')
+plt.ylabel('Precision')
+plt.title('Precision vs Recall Curve')
+plt.legend(loc='best')
+plt.figure(figsize=(8, 6))
+sns.heatmap(confusion, annot=True, fmt="d", cmap="Blues", cbar=False)
+plt.xlabel("Predicted")
+plt.ylabel("True")
+plt.title("Confusion Matrix Heatmap")
+plt.figure(figsize=(8, 6))
+plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Receiver Operating Characteristic (ROC) Curve')
+plt.legend(loc='best')
+plt.show()
